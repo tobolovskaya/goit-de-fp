@@ -55,6 +55,7 @@ class StreamingPipeline:
     def populate_kafka_topic(self):
         """Read data from MySQL and write to Kafka topic"""
         print("Populating Kafka topic with athlete event results...")
+        print("# Підготовка: Заповнення Kafka-топіку даними з MySQL для демонстрації streaming")
         
         # Read athlete event results from MySQL
         event_results_df = self.data_reader.read_athlete_event_results_from_mysql()
@@ -70,6 +71,7 @@ class StreamingPipeline:
     def run_streaming_pipeline(self, athlete_bio_df):
         """Run the main streaming pipeline"""
         print("Starting streaming pipeline...")
+        print("# ПОЧАТОК ВИКОНАННЯ ОСНОВНОГО STREAMING PIPELINE")
         
         # Read streaming data from Kafka
         event_stream = self.data_reader.read_from_kafka_stream(
@@ -90,6 +92,7 @@ class StreamingPipeline:
         
         # Start streaming with forEachBatch
         print("Starting stream processing...")
+        print("# Запуск streaming обробки з використанням forEachBatch")
         
         query = output_stream.writeStream \
             .foreachBatch(self.data_writer.foreach_batch_function) \
@@ -99,6 +102,8 @@ class StreamingPipeline:
             .start()
         
         print("Streaming pipeline started. Waiting for termination...")
+        print("# Streaming pipeline запущено. Очікування завершення...")
+        print("# Для зупинки натисніть Ctrl+C")
         query.awaitTermination()
     
     def run(self):

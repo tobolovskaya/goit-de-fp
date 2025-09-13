@@ -21,13 +21,13 @@ default_args = {
 dag = DAG(
     'batch_data_lake_pipeline',
     default_args=default_args,
-    description='Multi-hop Data Lake Pipeline for Olympic Athletes Data',
+    description='Фінальний проєкт частина 2: Multi-hop Data Lake Pipeline for Olympic Athletes Data',
     schedule_interval='@daily',  # Run daily
     catchup=False,
-    tags=['data-lake', 'batch-processing', 'olympic-data'],
+    tags=['data-lake', 'batch-processing', 'olympic-data', 'final-project'],
 )
 
-# Task 1: Landing to Bronze
+# Task 1: Landing to Bronze - Завантаження з FTP та конвертація в Parquet
 landing_to_bronze_task = SparkSubmitOperator(
     task_id='landing_to_bronze',
     application='dags/batch_processing/landing_to_bronze.py',
@@ -41,7 +41,7 @@ landing_to_bronze_task = SparkSubmitOperator(
     }
 )
 
-# Task 2: Bronze to Silver
+# Task 2: Bronze to Silver - Очищення тексту та дедублікація
 bronze_to_silver_task = SparkSubmitOperator(
     task_id='bronze_to_silver',
     application='dags/batch_processing/bronze_to_silver.py',
@@ -55,7 +55,7 @@ bronze_to_silver_task = SparkSubmitOperator(
     }
 )
 
-# Task 3: Silver to Gold
+# Task 3: Silver to Gold - Агрегація та розрахунок статистик
 silver_to_gold_task = SparkSubmitOperator(
     task_id='silver_to_gold',
     application='dags/batch_processing/silver_to_gold.py',
@@ -69,5 +69,5 @@ silver_to_gold_task = SparkSubmitOperator(
     }
 )
 
-# Define task dependencies
+# Define task dependencies - Послідовне виконання всіх трьох файлів
 landing_to_bronze_task >> bronze_to_silver_task >> silver_to_gold_task

@@ -17,9 +17,13 @@ def clean_text(text):
 
 def process_bronze_to_silver(spark, table_name):
     """
+    # Етап 1: Зчитування таблиці з bronze layer
+    # Етап 2: Виконання функції чистки тексту для всіх текстових колонок
+    # Етап 3: Дедублікація рядків
     Process data from bronze to silver layer
     """
     print(f"Processing {table_name} from bronze to silver...")
+    print(f"# Обробка {table_name} з bronze до silver layer")
     
     # Define paths
     bronze_path = f"data/bronze/{table_name}"
@@ -27,6 +31,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Read from Bronze layer
     print(f"Reading from bronze layer: {bronze_path}")
+    print(f"# Етап 1: Зчитування таблиці bronze з {bronze_path}")
     df = spark.read.parquet(bronze_path)
     
     print(f"Loaded {df.count()} records from bronze {table_name}")
@@ -37,6 +42,7 @@ def process_bronze_to_silver(spark, table_name):
     # Apply text cleaning to all string columns
     string_columns = [field.name for field in df.schema.fields if field.dataType == StringType()]
     print(f"Cleaning text columns: {string_columns}")
+    print(f"# Етап 2: Виконання функції чистки тексту для текстових колонок: {string_columns}")
     
     for col_name in string_columns:
         if col_name != "load_timestamp":  # Skip timestamp column
@@ -44,6 +50,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Remove duplicates
     print("Removing duplicates...")
+    print("# Етап 3: Дедублікація рядків")
     initial_count = df.count()
     df = df.dropDuplicates()
     final_count = df.count()
@@ -55,6 +62,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Write to Silver layer
     print(f"Writing to silver layer: {silver_path}")
+    print(f"# Запис таблиці в папку silver/{table_name}")
     df.write.mode("overwrite").parquet(silver_path)
     
     print(f"Successfully processed {table_name} to silver layer with {final_count} records")

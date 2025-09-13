@@ -8,9 +8,13 @@ from pyspark.sql.types import DoubleType, IntegerType
 
 def process_silver_to_gold(spark):
     """
+    # Етап 1: Зчитування двох таблиць із silver layer
+    # Етап 2: Виконання об'єднання та деяких перетворень
+    # Етап 3: Запис таблиці в папку gold
     Process data from silver to gold layer
     """
     print("Processing data from silver to gold layer...")
+    print("# Обробка даних з silver до gold layer")
     
     # Define paths
     athlete_bio_path = "data/silver/athlete_bio"
@@ -19,6 +23,7 @@ def process_silver_to_gold(spark):
     
     # Read from Silver layer
     print(f"Reading athlete_bio from: {athlete_bio_path}")
+    print("# Етап 1: Зчитування двох таблиць із silver layer")
     athlete_bio_df = spark.read.parquet(athlete_bio_path)
     
     print(f"Reading athlete_event_results from: {athlete_event_results_path}")
@@ -47,6 +52,7 @@ def process_silver_to_gold(spark):
     
     # Join tables on athlete_id
     print("Joining tables on athlete_id...")
+    print("# Етап 2: Виконання об'єднання таблиць за колонкою athlete_id")
     joined_df = athlete_event_results_df.join(
         athlete_bio_df,
         on="athlete_id",
@@ -64,6 +70,7 @@ def process_silver_to_gold(spark):
     
     # Calculate average statistics by sport, medal, sex, and country_noc
     print("Calculating average statistics...")
+    print("# Розрахунок середніх значень weight і height для кожної комбінації sport, medal, sex, country_noc")
     avg_stats_df = joined_df.groupBy(
         "sport",
         col("medal_clean").alias("medal"),
@@ -75,7 +82,12 @@ def process_silver_to_gold(spark):
     ).withColumn(
         "timestamp",
         current_timestamp()
+    ).withColumn(
+        "processing_timestamp",
+        current_timestamp()
     )
+    
+    print("# Додавання колонки timestamp з часовою міткою виконання програми")
     
     # Round averages to 2 decimal places
     avg_stats_df = avg_stats_df.select(
@@ -96,6 +108,7 @@ def process_silver_to_gold(spark):
     
     # Write to Gold layer
     print(f"Writing to gold layer: {gold_path}")
+    print("# Етап 3: Запис даних в gold/avg_stats")
     avg_stats_df.write.mode("overwrite").parquet(gold_path)
     
     print("Successfully processed data to gold layer!")

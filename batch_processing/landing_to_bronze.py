@@ -10,11 +10,13 @@ from pyspark.sql.functions import current_timestamp
 
 def download_data(table_name, local_file_path):
     """
+    # Етап 1: Завантаження файлу з FTP-сервера в оригінальному форматі CSV
     Download data from FTP server
     """
     url = "https://ftp.goit.study/neoversity/"
     downloading_url = url + table_name + ".csv"
     print(f"Downloading from {downloading_url}")
+    print(f"# Етап 1: Завантаження файлу {table_name}.csv з FTP-сервера")
     
     response = requests.get(downloading_url)
     
@@ -33,9 +35,11 @@ def download_data(table_name, local_file_path):
 
 def process_landing_to_bronze(spark, table_name):
     """
+    # Етап 2: Читання CSV файлу за допомогою Spark та збереження у форматі Parquet
     Process data from landing to bronze layer
     """
     print(f"Processing {table_name} from landing to bronze...")
+    print(f"# Етап 2: Обробка {table_name} з landing до bronze layer")
     
     # Define paths
     landing_path = f"data/landing/{table_name}.csv"
@@ -46,6 +50,7 @@ def process_landing_to_bronze(spark, table_name):
     
     # Read CSV file with Spark
     print(f"Reading CSV file: {landing_path}")
+    print(f"# Читання CSV файлу за допомогою Spark: {landing_path}")
     df = spark.read.option("header", "true").option("inferSchema", "true").csv(landing_path)
     
     # Add processing timestamp
@@ -57,6 +62,7 @@ def process_landing_to_bronze(spark, table_name):
     
     # Write to Bronze layer in Parquet format
     print(f"Writing to bronze layer: {bronze_path}")
+    print(f"# Збереження у форматі Parquet в папку bronze/{table_name}")
     df.write.mode("overwrite").parquet(bronze_path)
     
     print(f"Successfully processed {table_name} to bronze layer")

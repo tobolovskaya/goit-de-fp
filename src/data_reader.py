@@ -16,10 +16,12 @@ class DataReader:
     
     def read_athlete_bio_data(self):
         """
+        # Етап 1: Зчитування даних фізичних показників атлетів з MySQL таблиці
         Read athlete biological data from MySQL table
         Returns filtered DataFrame with valid height and weight data
         """
         print("Reading athlete bio data from MySQL...")
+        print("# Етап 1: Зчитування даних фізичних показників атлетів з MySQL таблиці")
         
         # Read data from MySQL
         athlete_bio_df = self.spark.read.format('jdbc').options(
@@ -30,6 +32,8 @@ class DataReader:
             password=self.db_config.MYSQL_PASSWORD
         ).load()
         
+        # Етап 2: Фільтрація даних (видалення порожніх та нечислових значень)
+        print("# Етап 2: Фільтрація даних - видалення записів з порожніми або нечисловими показниками зросту та ваги")
         # Filter out records with empty or non-numeric height and weight
         filtered_df = athlete_bio_df.filter(
             col("height").isNotNull() & 
@@ -47,9 +51,11 @@ class DataReader:
     
     def read_athlete_event_results_from_mysql(self):
         """
+        # Етап 3.1: Зчитування даних з MySQL таблиці athlete_event_results для запису в Kafka
         Read athlete event results from MySQL table
         """
         print("Reading athlete event results from MySQL...")
+        print("# Етап 3.1: Зчитування даних з MySQL таблиці athlete_event_results для запису в Kafka")
         
         event_results_df = self.spark.read.format('jdbc').options(
             url=self.db_config.get_jdbc_url(),
@@ -64,9 +70,11 @@ class DataReader:
     
     def write_to_kafka_topic(self, df, topic_name):
         """
+        # Етап 3.2: Запис даних з MySQL в Kafka-топік athlete_event_results
         Write DataFrame to Kafka topic
         """
         print(f"Writing data to Kafka topic: {topic_name}")
+        print(f"# Етап 3.2: Запис даних з MySQL в Kafka-топік {topic_name}")
         
         # Convert DataFrame to JSON format for Kafka
         kafka_df = df.select(
@@ -84,9 +92,11 @@ class DataReader:
     
     def read_from_kafka_stream(self, topic_name):
         """
+        # Етап 3.3: Зчитування даних з результатами змагань з Kafka-топіку
         Read streaming data from Kafka topic
         """
         print(f"Setting up Kafka stream reader for topic: {topic_name}")
+        print(f"# Етап 3.3: Зчитування streaming даних з Kafka-топіку {topic_name}")
         
         # Define schema for athlete event results
         event_results_schema = StructType([
@@ -107,6 +117,8 @@ class DataReader:
             .option("startingOffsets", "latest") \
             .load()
         
+        # Перетворення JSON-формату в DataFrame-формат з окремими колонками
+        print("# Перетворення JSON-формату в DataFrame-формат, де кожне поле JSON є окремою колонкою")
         # Parse JSON data from Kafka
         parsed_stream = kafka_stream.select(
             col("key").cast("string"),
