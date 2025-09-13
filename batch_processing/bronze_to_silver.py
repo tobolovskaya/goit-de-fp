@@ -20,9 +20,13 @@ def process_bronze_to_silver(spark, table_name):
     # Етап 1: Зчитування таблиці з bronze layer
     # Етап 2: Виконання функції чистки тексту для всіх текстових колонок
     # Етап 3: Дедублікація рядків
+    # Етап 1: Зчитування таблиці з bronze layer
+    # Етап 2: Виконання функції чистки тексту для всіх текстових колонок
+    # Етап 3: Дедублікація рядків
     Process data from bronze to silver layer
     """
     print(f"Processing {table_name} from bronze to silver...")
+    print(f"# Обробка {table_name} з bronze до silver layer")
     print(f"# Обробка {table_name} з bronze до silver layer")
     
     # Define paths
@@ -31,6 +35,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Read from Bronze layer
     print(f"Reading from bronze layer: {bronze_path}")
+    print(f"# Етап 1: Зчитування таблиці bronze з {bronze_path}")
     print(f"# Етап 1: Зчитування таблиці bronze з {bronze_path}")
     df = spark.read.parquet(bronze_path)
     
@@ -43,6 +48,7 @@ def process_bronze_to_silver(spark, table_name):
     string_columns = [field.name for field in df.schema.fields if field.dataType == StringType()]
     print(f"Cleaning text columns: {string_columns}")
     print(f"# Етап 2: Виконання функції чистки тексту для текстових колонок: {string_columns}")
+    print(f"# Етап 2: Виконання функції чистки тексту для текстових колонок: {string_columns}")
     
     for col_name in string_columns:
         if col_name != "load_timestamp":  # Skip timestamp column
@@ -50,6 +56,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Remove duplicates
     print("Removing duplicates...")
+    print("# Етап 3: Дедублікація рядків")
     print("# Етап 3: Дедублікація рядків")
     initial_count = df.count()
     df = df.dropDuplicates()
@@ -62,6 +69,7 @@ def process_bronze_to_silver(spark, table_name):
     
     # Write to Silver layer
     print(f"Writing to silver layer: {silver_path}")
+    print(f"# Запис таблиці в папку silver/{table_name}")
     print(f"# Запис таблиці в папку silver/{table_name}")
     df.write.mode("overwrite").parquet(silver_path)
     
